@@ -10,6 +10,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\CancellationController;
 use App\Http\Controllers\FollowUpController;
 use App\Http\Controllers\MoodLogController;
+use App\Http\Controllers\SpecializationController;
 // Existing login view
 Route::view('/login', 'auth.login');
 
@@ -27,7 +28,6 @@ Route::middleware('auth:patient')->group(function () {
     Route::get('/patient/dashboard', [App\Http\Controllers\PatientController::class, 'dashboard'])->name('patient.dashboard');
     Route::post('/patient/moodlog', [App\Http\Controllers\MoodLogController::class, 'store'])->name('moodlog.store');
     Route::post('/patient/book', [App\Http\Controllers\AppointmentController::class, 'book'])->name('appointment.book');
-    Route::post('/patient/appointment/book', [AppointmentController::class, 'book'])->name('appointment.book');
     Route::post('/patient/followup/confirm/{followup}', [FollowUpController::class, 'confirm'])->name('followup.confirm');
     Route::get('/patient/profile/edit', [PatientController::class, 'editProfile'])->name('patient.profile.edit');
 Route::post('/patient/profile/update', [PatientController::class, 'updateProfile'])->name('patient.profile.update');
@@ -55,11 +55,24 @@ Route::middleware('auth:therapist')->group(function () {
     Route::post('/therapist/session/{session}/reschedule',[TherapistController::class, 'reschedule'])->name('therapist.session.reschedule');
     });
 
-// Admin routes
 Route::middleware('auth:admin')->group(function () {
-    Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::post('/admin/therapist/verify/{id}', [App\Http\Controllers\AdminController::class, 'verifyTherapist'])->name('admin.therapist.verify');
-    Route::resource('/admin/specializations', App\Http\Controllers\SpecializationController::class);
-    Route::middleware(['auth:patient','auth:therapist'])->post('/session/{session}/cancel', [CancellationController::class, 'store']);
-});
 
+    // Admin Dashboard
+    Route::get(
+        '/admin/dashboard',
+        [AdminController::class, 'dashboard']
+    )->name('admin.dashboard');
+
+    // Verify Therapist
+    Route::post(
+        '/admin/therapist/verify/{id}',
+        [AdminController::class, 'verifyTherapist']
+    )->name('admin.therapist.verify');
+
+    // Manage Specializations
+    Route::resource(
+        'specializations',
+        SpecializationController::class
+    );
+
+});
